@@ -12,14 +12,20 @@ use Illuminate\Http\Request;
 */
 class BooksController
 {
-    /*
-    GET /books
-    @return array
-    */
+
+/*
+ GET /books
+ @return array
+*/
 
     public function index()
     {
-        return ['data' => Book::all()->toArray()];
+        return Book::all();
+        // // return [];
+        // return [
+        //     ['title' => 'War of the Worlds'],
+        //     ['title' => 'A Wrinkle in Time']
+        // ];
     }
 
     /**
@@ -29,7 +35,15 @@ class BooksController
     */
     public function show($id)
     {
-        return  ['data' => Book::findOrFail($id)];
+        try {
+            return Book::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                    'error' => [
+                        'message' => 'Book not found'
+                    ]
+                ], 404);
+        }
     }
 
     /**
@@ -39,9 +53,13 @@ class BooksController
     */
     public function store(Request $request)
     {
+        // try {
         $book = Book::create($request->all());
-        return response()->json(['data' => $book->toArray()], 201, [
-                'Location' => route('books.show', ['id' => $book->id])
+        // } catch (\Exception $e) {
+        //     dd(get_class($e));
+        // }
+        return response()->json(['created' => true], 201, [
+              'Location' => route('books.show', ['id' => $book->id])
         ]);
     }
 
@@ -66,7 +84,7 @@ class BooksController
         $book->fill($request->all());
         $book->save();
 
-        return ['data' => $book->toArray()];
+        return $book;
     }
 
     /**
