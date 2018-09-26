@@ -22,7 +22,8 @@ class BookTransformerTest extends TestCase
     /** @test **/
     public function it_transforms_a_book_model()
     {
-        $book = factory(Book::class)->create();
+        // $book = factory(Book::class)->create();
+        $book = $this->bookFactory()->first();
         $subject = new BookTransformer();
 
         $transform = $subject->transform($book);

@@ -68,4 +68,14 @@ class Handler extends ExceptionHandler
         }
         return parent::render($request, $e);
     }
+    
+    /**
+    * Determine if the application is in debug mode.
+    *
+    * @return Boolean
+    */
+    public function isDebugMode()
+    {
+        return (Boolean) env('APP_DEBUG');
+    }
 }

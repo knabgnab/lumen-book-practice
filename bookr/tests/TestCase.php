@@ -46,4 +46,52 @@ abstract class TestCase extends Laravel\Lumen\Testing\TestCase
 
         return $this;
     }
+
+    /**
+     * Convenience method for creating a book with an author 56 *
+     * @param int $count
+     * @return mixed
+     */
+    protected function bookFactory($count = 1)
+    {
+        $author = factory(\App\Author::class)->create();
+        $books = factory(\App\Book::class, $count)->make();
+
+        // if ($count === 1) {
+        //     // dd($author->books());
+        //     dd($books->author());
+
+        //     $books->author()->associate($author);
+        //     $books->save();
+        // } else {
+        $books->each(function ($book) use ($author) {
+            $book->author()->associate($author);
+            $book->save();
+        });
+        // }
+        // dd($books);
+        return $books;
+    }
+
+    /**
+     * Convenience method for creating a book bundle
+    *
+    * @param int $count
+    * @return mixed
+    */
+    protected function bundleFactory($bookCount = 2)
+    {
+        if ($bookCount <= 1) {
+            throw new \RuntimeException('A bundle must have two or more books!');
+        }
+        
+        $bundle = factory(\App\Bundle::class)->create();
+        $books = $this->bookFactory($bookCount);
+        
+        $books->each(function ($book) use ($bundle) {
+            $bundle->books()->attach($book);
+        });
+        
+        return $bundle;
+    }
 }

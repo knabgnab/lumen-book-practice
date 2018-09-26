@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use App\Transformer\BookTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-/**
+/** Chapter 8 Validation
 * Class BooksController
 * @package App\Http\Controllers
 */
 class BooksController extends Controller
 {
-    /* Chapter 7
+    /*
     GET /books
     @return array
     */
@@ -35,23 +35,24 @@ class BooksController extends Controller
         // return  ['data' => Book::findOrFail($id)];
     }
 
-    /**
+    /** Chapter 8 - Validation
      * POST /books
     * @param Request $request
     * @return \Symfony\Component\HttpFoundation\Response
     */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'title' => 'required|max:255',
+            'description' => 'required',
+            'author_id' => 'required|exists:authors,id'
+        ]);
         $book = Book::create($request->all());
         $data = $this->item($book, new BookTransformer());
 
         return response()->json($data, 201, [
             'Location' => route('books.show', ['id' => $book->id])
         ]);
-        // $book = Book::create($request->all());
-        // return response()->json(['data' => $book->toArray()], 201, [
-        //         'Location' => route('books.show', ['id' => $book->id])
-        // ]);
     }
 
     /**
@@ -72,6 +73,14 @@ class BooksController extends Controller
                 ]
             ], 404);
         }
+        
+        $this->validate($request, [
+            'title' => 'required|max:255',
+            'description' => 'required',
+            'author_id' => 'exists:authors,id', [
+                'description.required' => 'Please fill out the :attribute.'
+            ]
+        ]);
         $book->fill($request->all());
         $book->save();
 
